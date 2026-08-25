@@ -1,4 +1,4 @@
-module go-ecs
+module github.com/Brogi02/go-ecs
 
 go 1.26.1
 
