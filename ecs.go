@@ -2,12 +2,18 @@ package ecs
 
 import "github.com/google/uuid"
 
+var PresetComponents PresetComponentsFunction = func(component_name string) COMPONENT {
+	return nil
+}
+
 type ECS_MANAGER struct {
 	all_objects      map[string]map[string]COMPONENT
 	create_component ComponentCreateFunction
 }
 
 type ComponentCreateFunction func(*ECS_MANAGER, string) COMPONENT
+
+type PresetComponentsFunction func(string) COMPONENT
 
 func Init_ecs_manager() *ECS_MANAGER {
 	return &ECS_MANAGER{
@@ -41,8 +47,12 @@ func (ecs *ECS_MANAGER) Spawn(components_list_to_create []string) string {
 			component_map = make(map[string]COMPONENT)
 			ecs.all_objects[each_comcomponent_to_create] = component_map
 		}
-
-		component_map[uuid_created_for_the_entity] = ecs.create_component(ecs, each_comcomponent_to_create)
+		PresetComponents_return := PresetComponents(each_comcomponent_to_create)
+		if PresetComponents_return != nil {
+			component_map[uuid_created_for_the_entity] = PresetComponents_return
+		} else {
+			component_map[uuid_created_for_the_entity] = ecs.create_component(ecs, each_comcomponent_to_create)
+		}
 	}
 	return uuid_created_for_the_entity
 }
