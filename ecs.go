@@ -9,12 +9,12 @@ type ECS_MANAGER struct {
 
 type ComponentCreateFunction func(*ECS_MANAGER, string) COMPONENT
 
-func init_ecs_manager() *ECS_MANAGER {
+func Init_ecs_manager() *ECS_MANAGER {
 	return &ECS_MANAGER{
 		all_objects: make(map[string]map[string]COMPONENT),
 	}
 }
-func (ecs *ECS_MANAGER) get_component(object_uuid string, component string) COMPONENT {
+func (ecs *ECS_MANAGER) Get_component(object_uuid string, component string) COMPONENT {
 	// IF A POINTER TO A COMPONENT IS NEEDED .(*COMPONENT_STRUCT_IDENTIFIER) is necessary to be appended to the function call
 	component_map := ecs.all_objects[component]
 	if component_map == nil {
@@ -27,12 +27,12 @@ func (ecs *ECS_MANAGER) get_component(object_uuid string, component string) COMP
 		panic("tried reaching non existing component(NON OWNED or NON EXISTING)")
 	}
 }
-func (ecs *ECS_MANAGER) delete(object_uuid string) {
+func (ecs *ECS_MANAGER) Delete(object_uuid string) {
 	for _, each_map := range ecs.all_objects {
 		delete(each_map, object_uuid)
 	}
 }
-func (ecs *ECS_MANAGER) spawn(components_list_to_create []string) string {
+func (ecs *ECS_MANAGER) Spawn(components_list_to_create []string) string {
 	uuid_created_for_the_entity := uuid.New().String()
 	for _, each_comcomponent_to_create := range components_list_to_create {
 		component_map := ecs.all_objects[each_comcomponent_to_create]
