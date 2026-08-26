@@ -71,39 +71,6 @@ gcs.Delete(entity_id)
 
 Removes the entity and all of its components from every internal map.
 
-
-FULL EXAMPLE
-
-package main
-
-import "yourmodule/ecs"
-
-type Position struct {
-    X, Y float64
-}
-func (c *Position) component() {}
-
-func main() {
-    gcs := ecs.Init_ecs_manager()
-
-    gcs.create_component = func(e *ecs.ECS_MANAGER, name string) ecs.COMPONENT {
-        switch name {
-        case "POSITION":
-            return &Position{}
-        default:
-            panic("unknown component: " + name)
-        }
-    }
-
-    player := gcs.Spawn([]string{"POSITION"})
-
-    pos := gcs.Get_component(player, "POSITION").(*Position)
-    pos.X, pos.Y = 5, 5
-
-    gcs.Delete(player)
-}
-
-
 NOTES / GOTCHAS
 
 - Component names are plain strings, nothing checks them at compile
