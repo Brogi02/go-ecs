@@ -12,7 +12,7 @@ go-ecs has three main pieces:
 
 1. INITIALIZING
 
-``gcs := ecs.Init_ecs_manager()``
+````gcs := ecs.Init_ecs_manager()````
 
 Returns a pointer to an ECS_MANAGER. Do this once at startup.
 
@@ -22,18 +22,18 @@ Returns a pointer to an ECS_MANAGER. Do this once at startup.
 A component is just a struct that has a component() method (this method
 can be empty, it only exists so the struct satisfies the COMPONENT
 interface).
-``
+````
 type Position struct {
     X, Y float64
 }
 func (c *Position) component() {}
-``
+````
 
 3. SETTING THE COMPONENT CREATOR FUNCTION
 
 The manager needs to know how to build a component from its name string.
 Set this before spawning anything, or Spawn will panic.
-``
+````
 gcs.create_component = func(ecs *ecs.ECS_MANAGER, component_name string) ecs.COMPONENT {
     switch component_name {
     case "POSITION":
@@ -42,12 +42,12 @@ gcs.create_component = func(ecs *ecs.ECS_MANAGER, component_name string) ecs.COM
         panic("unknown component: " + component_name)
     }
 }
-``
+````
 
 4. SPAWNING AN ENTITY
-``
+````
 entity_id := gcs.Spawn([]string{"POSITION"})
-``
+````
 Pass a list of component names. Returns the new entity's UUID as a
 string. Save this, you need it for every later lookup or delete.
 
@@ -69,9 +69,9 @@ or if the entity does not own that component.
 
 
 6. DELETING AN ENTITY
-``
+````
 gcs.Delete(entity_id)
-``
+````
 Removes the entity and all of its components from every internal map.
 
 NOTES / GOTCHAS
