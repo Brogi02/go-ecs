@@ -12,7 +12,9 @@ go-ecs has three main pieces:
 
 1. INITIALIZING
 
-````gcs := ecs.Init_ecs_manager()````
+````
+gcs := ecs.Init_ecs_manager()
+````
 
 Returns a pointer to an ECS_MANAGER. Do this once at startup.
 
