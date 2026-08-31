@@ -7,22 +7,24 @@ var PresetComponents PresetComponentsFunction = func(component_name string) COMP
 }
 
 type ECS_MANAGER struct {
-	all_objects      map[string]map[string]COMPONENT
+	objects          map[string]map[string]COMPONENT
 	create_component ComponentCreateFunction
 }
-
+type COMPONENT interface {
+	component()
+}
 type ComponentCreateFunction func(*ECS_MANAGER, string) COMPONENT
 
 type PresetComponentsFunction func(string) COMPONENT
 
-func Init_ecs_manager() *ECS_MANAGER {
+func INIT_ECS_MANAGER() *ECS_MANAGER {
 	return &ECS_MANAGER{
-		all_objects: make(map[string]map[string]COMPONENT),
+		objects: make(map[string]map[string]COMPONENT),
 	}
 }
-func (ecs *ECS_MANAGER) Get_component(object_uuid string, component string) COMPONENT {
+func (ecs *ECS_MANAGER) GetComponent(object_uuid string, component string) COMPONENT {
 	// IF A POINTER TO A COMPONENT IS NEEDED .(*COMPONENT_STRUCT_IDENTIFIER) is necessary to be appended to the function call
-	component_map := ecs.all_objects[component]
+	component_map := ecs.objects[component]
 	if component_map == nil {
 		panic("Component has not been defined or has no map assigned")
 	}
@@ -34,18 +36,18 @@ func (ecs *ECS_MANAGER) Get_component(object_uuid string, component string) COMP
 	}
 }
 func (ecs *ECS_MANAGER) Delete(object_uuid string) {
-	for _, each_map := range ecs.all_objects {
+	for _, each_map := range ecs.objects {
 		delete(each_map, object_uuid)
 	}
 }
 func (ecs *ECS_MANAGER) Spawn(components_list_to_create []string) string {
 	uuid_created_for_the_entity := uuid.New().String()
 	for _, each_comcomponent_to_create := range components_list_to_create {
-		component_map := ecs.all_objects[each_comcomponent_to_create]
+		component_map := ecs.objects[each_comcomponent_to_create]
 
 		if component_map == nil {
 			component_map = make(map[string]COMPONENT)
-			ecs.all_objects[each_comcomponent_to_create] = component_map
+			ecs.objects[each_comcomponent_to_create] = component_map
 		}
 		PresetComponents_return := PresetComponents(each_comcomponent_to_create)
 		if PresetComponents_return != nil {
@@ -57,8 +59,34 @@ func (ecs *ECS_MANAGER) Spawn(components_list_to_create []string) string {
 	return uuid_created_for_the_entity
 }
 
-type COMPONENT interface {
-	component()
+func (ecs *ECS_MANAGER) GetEntityWithComponents(components []string) []string {
+	if len(components) == 0 {
+		return []string{}
+	}
+	common_entities := make(map[string]struct{})
+	first_component_map := ecs.objects[components[0]]
+	if first_component_map == nil {
+		return []string{}
+	}
+	for entity_uuid := range first_component_map {
+		common_entities[entity_uuid] = struct{}{}
+	}
+	for _, each_component := range components[1:] {
+		component_map := ecs.objects[each_component]
+		if component_map == nil {
+			return []string{}
+		}
+		for entity_uuid := range common_entities {
+			if _, exists := component_map[entity_uuid]; !exists {
+				delete(common_entities, entity_uuid)
+			}
+		}
+	}
+	entitys := make([]string, 0, len(common_entities))
+	for entity_uuid := range common_entities {
+		entitys = append(entitys, entity_uuid)
+	}
+	return entitys
 }
 
 /*
