@@ -10,6 +10,7 @@ type ECS_MANAGER struct {
 	objects          map[string]map[string]COMPONENT
 	create_component ComponentCreateFunction
 }
+
 type COMPONENT interface {
 	component()
 }
@@ -63,30 +64,42 @@ func (ecs *ECS_MANAGER) GetEntityWithComponents(components []string) []string {
 	if len(components) == 0 {
 		return []string{}
 	}
-	common_entities := make(map[string]struct{})
-	first_component_map := ecs.objects[components[0]]
-	if first_component_map == nil {
+	smallest := ecs.objects[components[0]]
+	if smallest == nil {
 		return []string{}
 	}
-	for entity_uuid := range first_component_map {
-		common_entities[entity_uuid] = struct{}{}
-	}
-	for _, each_component := range components[1:] {
-		component_map := ecs.objects[each_component]
-		if component_map == nil {
+	smallestIndex := 0
+	for i := 1; i < len(components); i++ {
+		componentMap := ecs.objects[components[i]]
+		if componentMap == nil {
 			return []string{}
 		}
-		for entity_uuid := range common_entities {
-			if _, exists := component_map[entity_uuid]; !exists {
-				delete(common_entities, entity_uuid)
-			}
+
+		if len(componentMap) < len(smallest) {
+			smallest = componentMap
+			smallestIndex = i
 		}
 	}
-	entitys := make([]string, 0, len(common_entities))
-	for entity_uuid := range common_entities {
-		entitys = append(entitys, entity_uuid)
+	if len(smallest) == 0 {
+		return []string{}
 	}
-	return entitys
+	result := make([]string, 0, len(smallest))
+	for entityUUID := range smallest {
+		found := true
+		for i, component := range components {
+			if i == smallestIndex {
+				continue
+			}
+			if _, exists := ecs.objects[component][entityUUID]; !exists {
+				found = false
+				break
+			}
+		}
+		if found {
+			result = append(result, entityUUID)
+		}
+	}
+	return result
 }
 
 /*
