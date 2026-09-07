@@ -7,8 +7,8 @@ var PresetComponents PresetComponentsFunction = func(component_name string) COMP
 }
 
 type ECS_MANAGER struct {
-	objects          map[string]map[string]COMPONENT
-	create_component ComponentCreateFunction
+	Objects          map[string]map[string]COMPONENT
+	Create_component ComponentCreateFunction
 }
 
 type COMPONENT interface {
